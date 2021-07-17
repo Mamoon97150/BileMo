@@ -6,6 +6,7 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -14,6 +15,21 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ORM\Table(name="`user`")
+ * @Serializer\XmlRoot("user")
+ *
+ * @Hateoas\Relation(
+ *     "self",
+ *      href =  @Hateoas\Route(
+ *          "api_user_item",
+ *           parameters={"id" = "expr(object.getId())"},
+ *          absolute= true
+ *     ),
+ *     embedded = @Hateoas\Embedded(
+ *          "expr(object.getSubUsers())",
+ *           exclusion= @Hateoas\Exclusion(groups={"sub_list"}),
+ *      ),
+ *     exclusion= @Hateoas\Exclusion(groups={"sub_list", "sub_details"})
+ * )
  */
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -21,7 +37,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Serializer\Groups("list", "sub_list")
+     * @Serializer\Groups("details", "sub_list", "sub_details")
+     * @Serializer\XmlAttribute
      */
     private $id;
 
@@ -29,7 +46,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank()
      * @Assert\Length(min=3)
-     * @Serializer\Groups("list", "sub_list")
+     * @Serializer\Groups("details", "sub_list", "sub_details")
      */
     private $name;
 
@@ -48,7 +65,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\ManyToMany(targetEntity=SubUser::class, mappedBy="users")
-     * @Serializer\Groups("list")
+     * @Serializer\Groups("sub_list")
+     * @Serializer\Exclude
      */
     private Collection $subUsers;
 
