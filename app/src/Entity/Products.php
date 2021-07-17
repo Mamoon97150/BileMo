@@ -6,10 +6,24 @@ use App\Repository\ProductsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProductsRepository::class)
+ * @Serializer\XmlRoot("products")
+ *
+ * @Hateoas\Relation(
+ *     "self",
+ *      href =  @Hateoas\Route(
+ *          "api_product_item",
+ *           parameters={"id" = "expr(object.getId())"},
+ *          absolute= true
+ *     ),
+ *     embedded = "expr(object.getSoldBy())",
+ *     exclusion= @Hateoas\Exclusion(groups={"list","details"})
+ * )
  */
 class Products
 {
@@ -18,11 +32,13 @@ class Products
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      * @Serializer\Groups("list")
+     * @Serializer\XmlAttribute
      */
     private ?int $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Unique
      * @Serializer\Groups("list")
      */
     private ?string $name;
@@ -41,7 +57,8 @@ class Products
 
     /**
      * @ORM\ManyToMany(targetEntity="User")
-     * @Serializer\Groups("list")
+     * @Serializer\Groups("details")
+     * @Serializer\Exclude
      */
     private Collection $soldBy;
 
