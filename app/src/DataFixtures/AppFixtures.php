@@ -34,7 +34,8 @@ class AppFixtures extends Fixture
         for ($i = 1; $i <= 10; $i++){
             $user = new User();
             $user->setName(sprintf("company %d", $i))
-                ->setPassword($this->passwordHasher->hashPassword($user, "password"));
+                ->setPassword($this->passwordHasher->hashPassword($user, "password"))
+            ;
 
             $manager->persist($user);
 

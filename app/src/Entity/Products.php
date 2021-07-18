@@ -31,7 +31,7 @@ class Products
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Serializer\Groups("list")
+     * @Serializer\Groups("list", "Default")
      * @Serializer\XmlAttribute
      */
     private ?int $id;
@@ -39,19 +39,19 @@ class Products
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\Unique
-     * @Serializer\Groups("list")
+     * @Serializer\Groups("list", "Default")
      */
     private ?string $name;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Serializer\Groups("list")
+     * @Serializer\Groups("list", "Default")
      */
     private ?string $brand;
 
     /**
      * @ORM\Column(type="integer")
-     * @Serializer\Groups("list")
+     * @Serializer\Groups("list", "Default")
      */
     private ?int $quantity;
 

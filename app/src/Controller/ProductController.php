@@ -4,15 +4,16 @@ namespace App\Controller;
 
 use App\Entity\Products;
 use App\Repository\ProductsRepository;
+use App\Service\PaginationService;
 use Hateoas\HateoasBuilder;
 use Hateoas\UrlGenerator\SymfonyUrlGenerator;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[Route('/product', name: 'api_product')]
@@ -23,10 +24,9 @@ class ProductController extends AbstractController
 
     /**
      * ProductController constructor.
-     * @param SerializerInterface $serializer
      * @param UrlGeneratorInterface $urlGenerator
      */
-    public function __construct(SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator)
+    public function __construct(UrlGeneratorInterface $urlGenerator)
     {
         $this->urlGenerator = $urlGenerator;
 
@@ -39,12 +39,12 @@ class ProductController extends AbstractController
             ->build();
     }
 
-    #[Route('/collection', name: '_collection', methods:['GET'])]
-    public function index(ProductsRepository $productsRepository): Response
+    #[Route('/', name: '_collection', methods:['GET'])]
+    public function index(Request $request, ProductsRepository $productsRepository, PaginationService $pagination): Response
     {
-        $products = $productsRepository->findAll();
+        $products = $pagination->getPaginatedProducts($request, $productsRepository);
         return new JsonResponse(
-            $this->serializer->serialize($products, 'json', SerializationContext::create()->setGroups(array('list'))),
+            $this->serializer->serialize($products, 'json', SerializationContext::create()->setGroups(array('list', 'Default'))),
             JsonResponse::HTTP_OK,
             [],
             true

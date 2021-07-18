@@ -5,9 +5,12 @@ namespace App\Controller;
 use App\Entity\SubUser;
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\PaginationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Hateoas\HateoasBuilder;
+use Hateoas\Representation\CollectionRepresentation;
+use Hateoas\Representation\PaginatedRepresentation;
 use Hateoas\UrlGenerator\SymfonyUrlGenerator;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
@@ -26,17 +29,17 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Route('/user', name: 'api')]
 class SubUserController extends AbstractController
 {
+    //Todo: affiner les exceptions
     private SerializerInterface $serializer;
     private UrlGeneratorInterface $urlGenerator;
     private SymfonySerializerInterface $symfonySerializer;
 
     /**
      * ProductController constructor.
-     * @param SerializerInterface $serializer
      * @param UrlGeneratorInterface $urlGenerator
      * @param SymfonySerializerInterface $symfonySerializer
      */
-    public function __construct(SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator, SymfonySerializerInterface $symfonySerializer)
+    public function __construct(UrlGeneratorInterface $urlGenerator, SymfonySerializerInterface $symfonySerializer)
     {
         $this->urlGenerator = $urlGenerator;
         $this->symfonySerializer = $symfonySerializer;
@@ -51,11 +54,12 @@ class SubUserController extends AbstractController
     }
 
     #[Route('/', name: '_user_index', methods:['GET'])]
-    public function index(UserRepository $userRepository): Response
+    public function index(UserRepository $userRepository, Request $request, PaginationService $pagination): Response
     {
-        $subs = $userRepository->findAll();
+        $subs = $pagination->getPaginatedUser($request, $userRepository);
+
         return new JsonResponse(
-            $this->serializer->serialize($subs, 'json', SerializationContext::create()->setGroups("sub_list")),
+            $this->serializer->serialize($subs, 'json', SerializationContext::create()->setGroups(["sub_list", "Default"])),
             JsonResponse::HTTP_OK,
             [],
             true
@@ -143,8 +147,6 @@ class SubUserController extends AbstractController
                 [AbstractNormalizer::OBJECT_TO_POPULATE => $subUser]
             );
 
-
-
             $errors = $validator->validate($subUser);
 
             if (count($errors) > 0){
@@ -171,12 +173,29 @@ class SubUserController extends AbstractController
             $manager->flush();
 
             return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
-        }catch (NotFoundHttpException $exception){
+        }catch (Exception $exception){
             return $this->json([
                 'status' => 400,
                 'message' => $exception->getMessage()
             ], 400);
         }
+
+    }
+
+    //Move to security controller ?
+    public function login(User $user)
+    {
+
+    }
+
+
+    public function getToken(User $user)
+    {
+
+    }
+
+    public function checkTokenValidity($token)
+    {
 
     }
 }

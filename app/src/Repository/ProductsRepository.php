@@ -14,9 +14,21 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ProductsRepository extends ServiceEntityRepository
 {
+    const PAGINATOR_PER_PAGE = 5;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Products::class);
+    }
+
+    public function getProductsPaginator(int $page)
+    {
+        $q = $this->createQueryBuilder('p')
+            ->setMaxResults(self::PAGINATOR_PER_PAGE)
+            ->setFirstResult(($page * self::PAGINATOR_PER_PAGE) - self::PAGINATOR_PER_PAGE)
+            ->getQuery()
+        ;
+        return $q->getResult();
     }
 
     // /**

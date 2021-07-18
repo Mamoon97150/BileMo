@@ -37,35 +37,37 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Serializer\Groups("details", "sub_list", "sub_details")
+     * @Serializer\Groups("details", "sub_list", "sub_details", "Default")
      * @Serializer\XmlAttribute
      */
-    private $id;
+    private ?int $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank()
      * @Assert\Length(min=3)
-     * @Serializer\Groups("details", "sub_list", "sub_details")
+     * @Serializer\Groups("details", "sub_list", "sub_details", "Default")
      */
-    private $name;
+    private ?string $name;
 
     /**
      * @ORM\Column(type="json")
+     * @Serializer\Exclude
      */
-    private $roles = [];
+    private array $roles = [];
 
     /**
      * @var string The hashed password
      * @Assert\NotBlank
      * @Assert\Length(min=5)
      * @ORM\Column(type="string")
+     * @Serializer\Exclude
      */
-    private $password;
+    private string $password;
 
     /**
      * @ORM\ManyToMany(targetEntity=SubUser::class, mappedBy="users")
-     * @Serializer\Groups("sub_list")
+     * @Serializer\Groups("sub_list", "Default")
      * @Serializer\Exclude
      */
     private Collection $subUsers;

@@ -57,7 +57,7 @@ class SubUser
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Serializer\Groups("details", "sub_list", "sub_details")
+     * @Serializer\Groups("details", "sub_list", "sub_details", "Default")
      * @Serializer\XmlAttribute
      * @Type("int")
      */
@@ -67,7 +67,7 @@ class SubUser
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
      * @Assert\Length(min=5)
-     * @Serializer\Groups("details", "sub_list", "sub_details")
+     * @Serializer\Groups("details", "sub_list", "sub_details", "Default")
      * @Type("string")
      */
     private ?string $username;
@@ -75,7 +75,7 @@ class SubUser
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\Email()
-     * @Serializer\Groups("details", "sub_list", "sub_details")
+     * @Serializer\Groups("details", "sub_list", "sub_details", "Default")
      * @Type("string")
      */
     private ?string $email;
