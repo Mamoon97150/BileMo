@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Products;
 use App\Repository\ProductsRepository;
 use App\Service\PaginationService;
+use Hateoas\Hateoas;
 use Hateoas\HateoasBuilder;
 use Hateoas\UrlGenerator\SymfonyUrlGenerator;
 use JMS\Serializer\SerializationContext;
@@ -16,10 +17,20 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+/**
+ * Class ProductController
+ * @package App\Controller
+ */
 #[Route('/product', name: 'api_product')]
 class ProductController extends AbstractController
 {
-    private SerializerInterface $serializer;
+    /**
+     * @var Hateoas|SerializerInterface
+     */
+    private SerializerInterface|Hateoas $serializer;
+    /**
+     * @var UrlGeneratorInterface
+     */
     private UrlGeneratorInterface $urlGenerator;
 
     /**
@@ -39,6 +50,14 @@ class ProductController extends AbstractController
             ->build();
     }
 
+    /**
+     * Lists all products
+     *
+     * @param Request $request
+     * @param ProductsRepository $productsRepository
+     * @param PaginationService $pagination
+     * @return Response
+     */
     #[Route('/', name: '_collection', methods:['GET'])]
     public function index(Request $request, ProductsRepository $productsRepository, PaginationService $pagination): Response
     {
@@ -51,6 +70,12 @@ class ProductController extends AbstractController
         );
     }
 
+    /**
+     * Show one product
+     *
+     * @param Products $product
+     * @return Response
+     */
     #[Route('/{id}', name: '_item', methods:['GET'])]
     public function item(Products $product): Response
     {

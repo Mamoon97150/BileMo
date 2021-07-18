@@ -8,34 +8,47 @@ use App\Repository\UserRepository;
 use App\Service\PaginationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Hateoas\Hateoas;
 use Hateoas\HateoasBuilder;
-use Hateoas\Representation\CollectionRepresentation;
-use Hateoas\Representation\PaginatedRepresentation;
 use Hateoas\UrlGenerator\SymfonyUrlGenerator;
-use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface as SymfonySerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * Class SubUserController
+ * Create CRUD for SubUsers and show for User
+ * @package App\Controller
+ */
 #[Route('/user', name: 'api')]
 class SubUserController extends AbstractController
 {
-    //Todo: affiner les exceptions
-    private SerializerInterface $serializer;
+    //Todo: affiner les exceptions?
+    /**
+     * @var Hateoas|SerializerInterface
+     */
+    private SerializerInterface|Hateoas $serializer;
+    /**
+     * @var UrlGeneratorInterface
+     */
     private UrlGeneratorInterface $urlGenerator;
+    /**
+     * @var SymfonySerializerInterface
+     */
     private SymfonySerializerInterface $symfonySerializer;
 
     /**
      * ProductController constructor.
+     * Creates hateoas serializer (cache, urlGenerator)
+     *
      * @param UrlGeneratorInterface $urlGenerator
      * @param SymfonySerializerInterface $symfonySerializer
      */
@@ -45,6 +58,7 @@ class SubUserController extends AbstractController
         $this->symfonySerializer = $symfonySerializer;
 
         $this->serializer = HateoasBuilder::create()
+            ->setCacheDir('cache')
             ->setDefaultJsonSerializer()
             ->setUrlGenerator(
                 null, // By default all links uses the generator configured with the null name
@@ -53,6 +67,13 @@ class SubUserController extends AbstractController
             ->build();
     }
 
+    /**
+     * Lists all the users able to connect to api
+     * @param UserRepository $userRepository
+     * @param Request $request
+     * @param PaginationService $pagination
+     * @return Response
+     */
     #[Route('/', name: '_user_index', methods:['GET'])]
     public function index(UserRepository $userRepository, Request $request, PaginationService $pagination): Response
     {
@@ -74,6 +95,11 @@ class SubUserController extends AbstractController
         }
     }
 
+    /**
+     * Show the details of a User and all his sub users
+     * @param User $user
+     * @return Response
+     */
     #[Route('/{id}', name: '_user_item', methods:['GET'])]
     public function collect(User $user): Response
     {
@@ -96,6 +122,11 @@ class SubUserController extends AbstractController
 
     }
 
+    /**
+     * Show the details of a sub user and the User he is linked to
+     * @param SubUser $subUser
+     * @return Response
+     */
     #[Route('/sub/{id}', name: '_sub_item', methods:['GET'])]
     public function item(SubUser $subUser): Response
     {
@@ -116,14 +147,21 @@ class SubUserController extends AbstractController
 
     }
 
-    //TODO: get the user fromm connection
+    /**
+     * Create a new SubUser
+     * @param Request $request
+     * @param EntityManagerInterface $manager
+     * @param UrlGeneratorInterface $urlGenerator
+     * @param ValidatorInterface $validator
+     * @param UserRepository $userRepository
+     * @return Response
+     */
     #[Route('/sub/create', name: '_sub_create', methods:['POST'])]
     public function create(
         Request $request,
         EntityManagerInterface $manager,
         UrlGeneratorInterface $urlGenerator,
-        ValidatorInterface $validator,
-        UserRepository $userRepository
+        ValidatorInterface $validator
     ): Response
     {
         try {
@@ -163,6 +201,16 @@ class SubUserController extends AbstractController
     }
 
     //TODO: ask if ok to use both serializer
+
+    /**
+     * Update an existing SubUser
+     *
+     * @param SubUser $subUser
+     * @param Request $request
+     * @param EntityManagerInterface $manager
+     * @param ValidatorInterface $validator
+     * @return JsonResponse
+     */
     #[Route('/sub/{id}', name: '_sub_update', methods:['PUT'])]
     public function update(SubUser $subUser,Request $request, EntityManagerInterface $manager, ValidatorInterface $validator): JsonResponse
     {
@@ -193,6 +241,13 @@ class SubUserController extends AbstractController
 
     }
 
+    /**
+     * Delete a SubUser
+     *
+     * @param SubUser $subUser
+     * @param EntityManagerInterface $manager
+     * @return JsonResponse
+     */
     #[Route('/sub/{id}', name: "_sub_delete", methods: ['DELETE'])]
     public function delete( SubUser $subUser, EntityManagerInterface $manager): JsonResponse
     {

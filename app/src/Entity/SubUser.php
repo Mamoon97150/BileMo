@@ -9,48 +9,16 @@ use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Type;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=SubUserRepository::class)
  * @Serializer\XmlRoot("subuser")
  *
- *
- * @Hateoas\Relation(
- *     "self",
- *      href =  @Hateoas\Route(
- *          "api_sub_item",
- *           parameters={"id" = "expr(object.getId())"},
- *          absolute= true
- *     ),
- *     embedded = @Hateoas\Embedded(
- *          "expr(object.getUsers())",
- *           exclusion= @Hateoas\Exclusion(groups={"sub_details"}, maxDepth=1),
- *      ),
- *     exclusion= @Hateoas\Exclusion(groups={"sub_details"}, maxDepth=1)
- * )
- *
- * @Hateoas\Relation(
- *     "update",
- *      href =  @Hateoas\Route(
- *          "api_sub_update",
- *           parameters={"id" = "expr(object.getId())"},
- *          absolute= true
- *     ),
- *
- *     exclusion= @Hateoas\Exclusion(groups={"sub_details"}, maxDepth=1)
- * )
- *
- * @Hateoas\Relation(
- *     "delete",
- *      href =  @Hateoas\Route(
- *          "api_sub_delete",
- *           parameters={"id" = "expr(object.getId())"},
- *          absolute= true
- *     ),
- *     exclusion= @Hateoas\Exclusion(groups={}, maxDepth=1)
- * )
+ * @Hateoas\RelationProvider("expr(service('user.rel_provider').getRelations())")
  */
+#[UniqueEntity('username')]
 class SubUser
 {
     /**
@@ -74,6 +42,7 @@ class SubUser
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
      * @Assert\Email()
      * @Serializer\Groups("details", "sub_list", "sub_details", "Default")
      * @Type("string")

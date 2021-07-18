@@ -30,3 +30,8 @@ services:
     jms_serializer.existing_object_constructor:
         class: App\Service\ExistingObjectConstructor
         arguments: ["@jms_serializer.unserialize_object_constructor"]
+
+    user.rel_provider:
+        class: App\Service\SubUserRelProvider
+        arguments:
+            - '@jms_serializer.expression_evaluator'

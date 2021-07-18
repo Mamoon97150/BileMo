@@ -10,9 +10,21 @@ use Hateoas\Representation\CollectionRepresentation;
 use Hateoas\Representation\PaginatedRepresentation;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Class PaginationService
+ * Handles pagination for user list page and product list page
+ * @package App\Service
+ */
 class PaginationService
 {
-    public function getPaginatedUser(Request $request,UserRepository $userRepository): PaginatedRepresentation
+    /**
+     * Paginates user list and create representation
+     *
+     * @param Request $request
+     * @param UserRepository $userRepository
+     * @return PaginatedRepresentation
+     */
+    public function getPaginatedUser(Request $request, UserRepository $userRepository): PaginatedRepresentation
     {
         $page = (int)$request->query->getInt('page', 1);
         $users = $userRepository->getUserPaginator($page);
@@ -32,6 +44,13 @@ class PaginationService
         );
     }
 
+    /**
+     * Paginate products list and create representation
+     *
+     * @param Request $request
+     * @param ProductsRepository $productsRepository
+     * @return PaginatedRepresentation
+     */
     public function getPaginatedProducts(Request $request, ProductsRepository $productsRepository): PaginatedRepresentation
     {
         $page = (int)$request->query->getInt('page', 1);

@@ -8,7 +8,6 @@ use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
-use phpDocumentor\Reflection\DocBlock\Tags\Throws;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
@@ -29,8 +28,11 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager)
     {
+        //Create faker
         $faker = Factory::create('fr_FR');
 
+
+        //Create super admin
         $bilemo = new User();
         $bilemo->setRoles(['ROLE_SUPER_ADMIN'])
             ->setName("bilemo")
@@ -38,6 +40,7 @@ class AppFixtures extends Fixture
         ;
         $manager->persist($bilemo);
 
+        //Create users
         $client = new User();
         $client->setRoles(['ROLE_ADMIN'])
             ->setName("client")
@@ -57,7 +60,10 @@ class AppFixtures extends Fixture
 
             $users[] = $user;
         }
+
+        //Create objects linked to User
         foreach ($users as $user){
+            //Create products
             for ($j =1; $j <= 5; $j++){
                 $product = new Products();
                 $product->setName(sprintf("phone %d", $j))
@@ -71,10 +77,11 @@ class AppFixtures extends Fixture
                 }
                 $manager->persist($product);
 
+                //Create subuser
                 for ($k = 1; $k <= 10; $k++){
                     $subs = new SubUser();
                     $subs->setEmail($faker->email())
-                        ->setUsername($faker->userName())
+                        ->setUsername($faker->unique()->userName())
                         ->addUser($user)
                     ;
 
