@@ -15,6 +15,8 @@ class UserVoter extends Voter
     private Security $security;
     const OWN = 'USER_OWN';
 
+    //TODO check if i'm subUser to show or update my details
+
     public function __construct(Security $security)
     {
         $this->security = $security;

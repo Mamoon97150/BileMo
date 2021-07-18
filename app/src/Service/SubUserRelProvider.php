@@ -12,6 +12,8 @@ use JMS\Serializer\Expression\CompilableExpressionEvaluatorInterface;
 
 class SubUserRelProvider
 {
+
+    //Broken ??
     private CompilableExpressionEvaluatorInterface $evaluator;
 
     /**
@@ -23,7 +25,7 @@ class SubUserRelProvider
         $this->evaluator = $evaluator;
     }
 
-    public function getRelations()
+    public function getExtraRelations(): array
     {
         return array(
             new Relation(
@@ -34,9 +36,9 @@ class SubUserRelProvider
                   true
               ),
               new Embedded(
-                  $this->evaluator->parse("object.getUsers()", ['object']),
+                  $this->evaluator->parse("object.getUser()", ['object']),
                   new Exclusion([
-                      'groups' => ['sub_details'],
+                      'groups' => ['sub_details', 'sub_list'],
                       null,
                       null,
                       'maxDepth' => 1
@@ -76,7 +78,7 @@ class SubUserRelProvider
                 null,
                 null,
                 new Exclusion([
-                    null,
+                    'groups' => ['sub_details'],
                     null,
                     null,
                     'maxDepth' => 1

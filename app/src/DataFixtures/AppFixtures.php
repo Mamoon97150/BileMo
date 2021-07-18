@@ -77,12 +77,12 @@ class AppFixtures extends Fixture
                 }
                 $manager->persist($product);
 
-                //Create subuser
+                //Create sub-user
                 for ($k = 1; $k <= 10; $k++){
                     $subs = new SubUser();
                     $subs->setEmail($faker->email())
                         ->setUsername($faker->unique()->userName())
-                        ->addUser($user)
+                        ->setUser($user)
                     ;
 
                     $manager->persist($subs);

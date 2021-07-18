@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\SubUserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
@@ -16,7 +14,41 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass=SubUserRepository::class)
  * @Serializer\XmlRoot("subuser")
  *
- * @Hateoas\RelationProvider("expr(service('user.rel_provider').getRelations())")
+ * Hateoas\RelationProvider("expr(service(user.rel_provider).getExtraRelations())")
+ * @Hateoas\Relation(
+ *     "self",
+ *      href =  @Hateoas\Route(
+ *          "api_sub_item",
+ *           parameters={"id" = "expr(object.getId())"},
+ *          absolute= true
+ *     ),
+ *     embedded = @Hateoas\Embedded(
+ *          "expr(object.getUser())",
+ *           exclusion= @Hateoas\Exclusion(groups={"sub_details"}, maxDepth=1),
+ *      ),
+ *     exclusion= @Hateoas\Exclusion(groups={"sub_details"}, maxDepth=1)
+ * )
+ *
+ * @Hateoas\Relation(
+ *     "update",
+ *      href =  @Hateoas\Route(
+ *          "api_sub_update",
+ *           parameters={"id" = "expr(object.getId())"},
+ *          absolute= true
+ *     ),
+ *
+ *     exclusion= @Hateoas\Exclusion(groups={"sub_details"}, maxDepth=1)
+ * )
+ *
+ * @Hateoas\Relation(
+ *     "delete",
+ *      href =  @Hateoas\Route(
+ *          "api_sub_delete",
+ *           parameters={"id" = "expr(object.getId())"},
+ *          absolute= true
+ *     ),
+ *     exclusion= @Hateoas\Exclusion(groups={"sub_details"}, maxDepth=1)
+ * )
  */
 #[UniqueEntity('username')]
 class SubUser
@@ -50,20 +82,14 @@ class SubUser
     private ?string $email;
 
     /**
-     * @ORM\ManyToMany(targetEntity=User::class, inversedBy="subUsers")
      * @Serializer\Groups("sub_list", "Default")
      * @Serializer\Exclude
-     * @Type("ArrayCollection<App\Entity\User>")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="subUsers")
+     * @ORM\JoinColumn(nullable=false)
+     * @Type("App\Entity\User")
      */
-    private Collection $users;
+    private ?User $user;
 
-    /**
-     * SubUser constructor.
-     */
-    public function __construct()
-    {
-        $this->users = new ArrayCollection();
-    }
 
 
     public function getId(): ?int
@@ -95,28 +121,16 @@ class SubUser
         return $this;
     }
 
-    /**
-     * @return Collection
-     */
-    public function getUsers(): Collection
+    public function getUser(): ?User
     {
-        return $this->users;
+        return $this->user;
     }
 
-
-    public function addUser(User $user): self
+    public function setUser(?User $user): self
     {
-        if (!$this->users->contains($user)) {
-            $this->users[] = $user;
-        }
+        $this->user = $user;
 
         return $this;
     }
 
-    public function removeUser(User $user): self
-    {
-        $this->users->removeElement($user);
-
-        return $this;
-    }
 }

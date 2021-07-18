@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
@@ -67,11 +68,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $password;
 
     /**
-     * @ORM\ManyToMany(targetEntity=SubUser::class, mappedBy="users")
+     * @ORM\OneToMany(targetEntity=SubUser::class, mappedBy="user", orphanRemoval=true)
      * @Serializer\Groups("sub_list", "Default")
      * @Serializer\Exclude
      */
     private Collection $subUsers;
+
+    public function __construct()
+    {
+        $this->subUsers = new ArrayCollection();
+    }
+
 
     public function getId(): ?int
     {
@@ -174,7 +181,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->subUsers->contains($subUser)) {
             $this->subUsers[] = $subUser;
-            $subUser->addUser($this);
+            $subUser->setUser($this);
         }
 
         return $this;
@@ -183,10 +190,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeSubUser(SubUser $subUser): self
     {
         if ($this->subUsers->removeElement($subUser)) {
-            $subUser->removeUser($this);
+            // set the owning side to null (unless already changed)
+            if ($subUser->getUser() === $this) {
+                $subUser->setUser(null);
+            }
         }
 
         return $this;
     }
+
 
 }

@@ -59,7 +59,6 @@ class SubUserController extends AbstractController
 
         $this->serializer = HateoasBuilder::create()
             ->setCacheDir('cache')
-            ->setDefaultJsonSerializer()
             ->setUrlGenerator(
                 null, // By default all links uses the generator configured with the null name
                 new SymfonyUrlGenerator($this->urlGenerator)
@@ -104,7 +103,6 @@ class SubUserController extends AbstractController
     public function collect(User $user): Response
     {
         try {
-
             $this->denyAccessUnlessGranted('USER_OWN', $user);
             return new JsonResponse(
                 $this->serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array("sub_list", "sub_details", "Default"))),
@@ -117,7 +115,7 @@ class SubUserController extends AbstractController
             return $this->json([
                 'status' => $exception->getCode(),
                 'message' => $exception->getMessage()
-            ], $exception->getCode());
+            ], 400);
         }
 
     }
@@ -142,7 +140,7 @@ class SubUserController extends AbstractController
             return $this->json([
                 'status' => $exception->getCode(),
                 'message' => $exception->getMessage()
-            ], $exception->getCode());
+            ], 400);
         }
 
     }
@@ -153,7 +151,6 @@ class SubUserController extends AbstractController
      * @param EntityManagerInterface $manager
      * @param UrlGeneratorInterface $urlGenerator
      * @param ValidatorInterface $validator
-     * @param UserRepository $userRepository
      * @return Response
      */
     #[Route('/sub/create', name: '_sub_create', methods:['POST'])]
@@ -172,8 +169,10 @@ class SubUserController extends AbstractController
                 SubUser::class,
                 'json'
             );
+
+            /** @var User $user */
             $user = $this->getUser();
-            $subs->addUser($user);
+            $subs->setUser($user);
 
             $this->denyAccessUnlessGranted('USER_OWN', $user);
 
@@ -215,6 +214,8 @@ class SubUserController extends AbstractController
     public function update(SubUser $subUser,Request $request, EntityManagerInterface $manager, ValidatorInterface $validator): JsonResponse
     {
         try {
+
+            $this->denyAccessUnlessGranted('USER_OWN', $subUser);
 
             $this->symfonySerializer->deserialize(
                 $request->getContent(),

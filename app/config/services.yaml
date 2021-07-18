@@ -33,5 +33,6 @@ services:
 
     user.rel_provider:
         class: App\Service\SubUserRelProvider
+        public: true
         arguments:
             - '@jms_serializer.expression_evaluator'

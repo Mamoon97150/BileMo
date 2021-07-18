@@ -17,7 +17,8 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/', name: "api")]
 class SecurityController extends AbstractController
 {
-
+    //TODO: add token to header
+//TODO: when subUser gives info check if part of subUser table -> getUser and connect with him
     /**
      * Login to gain access to API
      *
