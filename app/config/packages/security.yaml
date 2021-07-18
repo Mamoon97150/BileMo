@@ -20,6 +20,9 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+            json_login:
+                check_path: /api/login
+                username_path: name
 
 #        login:
 #            pattern: ^/api/login
@@ -43,5 +46,5 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
 #    access_control:
-#        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-#        - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
+#        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+#        - { path: ^/api,       roles: ROLE_USER }

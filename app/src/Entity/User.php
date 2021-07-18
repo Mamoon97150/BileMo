@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *          "expr(object.getSubUsers())",
  *           exclusion= @Hateoas\Exclusion(groups={"sub_list"}),
  *      ),
- *     exclusion= @Hateoas\Exclusion(groups={"sub_list", "sub_details"})
+ *     exclusion= @Hateoas\Exclusion(maxDepth=1, groups={"sub_list", "sub_details"})
  * )
  */
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -187,4 +187,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
 }

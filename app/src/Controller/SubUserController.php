@@ -56,36 +56,64 @@ class SubUserController extends AbstractController
     #[Route('/', name: '_user_index', methods:['GET'])]
     public function index(UserRepository $userRepository, Request $request, PaginationService $pagination): Response
     {
-        $subs = $pagination->getPaginatedUser($request, $userRepository);
+        try {
+            $this->denyAccessUnlessGranted('ROLE_SUPER_ADMIN');
+            $subs = $pagination->getPaginatedUser($request, $userRepository);
 
-        return new JsonResponse(
-            $this->serializer->serialize($subs, 'json', SerializationContext::create()->setGroups(["sub_list", "Default"])),
-            JsonResponse::HTTP_OK,
-            [],
-            true
-        );
+            return new JsonResponse(
+                $this->serializer->serialize($subs, 'json', SerializationContext::create()->setGroups(["sub_list", "Default"])),
+                JsonResponse::HTTP_OK,
+                [],
+                true
+            );
+        }catch (Exception $exception) {
+            return $this->json([
+                'status' => $exception->getCode(),
+                'message' => $exception->getMessage()
+            ], $exception->getCode());
+        }
     }
 
     #[Route('/{id}', name: '_user_item', methods:['GET'])]
     public function collect(User $user): Response
     {
-        return new JsonResponse(
-            $this->serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array("sub_list", "sub_details"))),
-            JsonResponse::HTTP_OK,
-            [],
-            true
-        );
+        try {
+
+            $this->denyAccessUnlessGranted('USER_OWN', $user);
+            return new JsonResponse(
+                $this->serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array("sub_list", "sub_details", "Default"))),
+                JsonResponse::HTTP_OK,
+                [],
+                true
+            );
+
+        }catch (Exception $exception){
+            return $this->json([
+                'status' => $exception->getCode(),
+                'message' => $exception->getMessage()
+            ], $exception->getCode());
+        }
+
     }
 
     #[Route('/sub/{id}', name: '_sub_item', methods:['GET'])]
     public function item(SubUser $subUser): Response
     {
-        return new JsonResponse(
-            $this->serializer->serialize($subUser, 'json', SerializationContext::create()->setGroups("sub_details")),
-            JsonResponse::HTTP_OK,
-            [],
-            true
-        );
+        try {
+            $this->denyAccessUnlessGranted('USER_OWN', $subUser);
+            return new JsonResponse(
+                $this->serializer->serialize($subUser, 'json', SerializationContext::create()->setGroups("sub_details")),
+                JsonResponse::HTTP_OK,
+                [],
+                true
+            );
+        }catch (Exception $exception){
+            return $this->json([
+                'status' => $exception->getCode(),
+                'message' => $exception->getMessage()
+            ], $exception->getCode());
+        }
+
     }
 
     //TODO: get the user fromm connection
@@ -98,7 +126,6 @@ class SubUserController extends AbstractController
         UserRepository $userRepository
     ): Response
     {
-        $user = $userRepository->find(rand(0, 10));
         try {
 
             /** @var SubUser $subs */
@@ -107,7 +134,10 @@ class SubUserController extends AbstractController
                 SubUser::class,
                 'json'
             );
+            $user = $this->getUser();
             $subs->addUser($user);
+
+            $this->denyAccessUnlessGranted('USER_OWN', $user);
 
             $errors = $validator->validate($subs);
             if (count($errors) > 0){
@@ -116,8 +146,6 @@ class SubUserController extends AbstractController
 
             $manager->persist($subs);
             $manager->flush();
-
-            dump($subs);
 
             return new JsonResponse(
                 $this->serializer->serialize($subs, 'json', SerializationContext::create()->setGroups("sub_list")),
@@ -128,9 +156,9 @@ class SubUserController extends AbstractController
 
         }catch (Exception $exception){
             return $this->json([
-                'status' => 404,
+                'status' => $exception->getCode(),
                 'message' => $exception->getMessage()
-            ], 404);
+            ], $exception->getCode());
         }
     }
 
@@ -158,9 +186,9 @@ class SubUserController extends AbstractController
             return $this->json($subUser, 201, [], ['groups' => 'post:read']);
         }catch ( Exception $exception){
             return $this->json([
-                'status' => 400,
+                'status' => $exception->getCode(),
                 'message' => $exception->getMessage()
-            ], 400);
+            ], $exception->getCode());
         }
 
     }
@@ -175,27 +203,10 @@ class SubUserController extends AbstractController
             return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
         }catch (Exception $exception){
             return $this->json([
-                'status' => 400,
+                'status' => $exception->getCode(),
                 'message' => $exception->getMessage()
-            ], 400);
+            ], $exception->getCode());
         }
-
-    }
-
-    //Move to security controller ?
-    public function login(User $user)
-    {
-
-    }
-
-
-    public function getToken(User $user)
-    {
-
-    }
-
-    public function checkTokenValidity($token)
-    {
 
     }
 }

@@ -8,6 +8,7 @@ use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
+use phpDocumentor\Reflection\DocBlock\Tags\Throws;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
@@ -30,11 +31,26 @@ class AppFixtures extends Fixture
     {
         $faker = Factory::create('fr_FR');
 
+        $bilemo = new User();
+        $bilemo->setRoles(['ROLE_SUPER_ADMIN'])
+            ->setName("bilemo")
+            ->setPassword($this->passwordHasher->hashPassword($bilemo,"admin"))
+        ;
+        $manager->persist($bilemo);
+
+        $client = new User();
+        $client->setRoles(['ROLE_ADMIN'])
+            ->setName("client")
+            ->setPassword($this->passwordHasher->hashPassword($client,"admin"))
+        ;
+        $manager->persist($client);
+
         $users = [];
         for ($i = 1; $i <= 10; $i++){
             $user = new User();
-            $user->setName(sprintf("company %d", $i))
+            $user->setName(sprintf("company%d", $i))
                 ->setPassword($this->passwordHasher->hashPassword($user, "password"))
+                ->setRoles(['ROLE_USER'])
             ;
 
             $manager->persist($user);

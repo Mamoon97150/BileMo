@@ -15,6 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass=SubUserRepository::class)
  * @Serializer\XmlRoot("subuser")
  *
+ *
  * @Hateoas\Relation(
  *     "self",
  *      href =  @Hateoas\Route(
@@ -26,7 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *          "expr(object.getUsers())",
  *           exclusion= @Hateoas\Exclusion(groups={"sub_details"}, maxDepth=1),
  *      ),
- *     exclusion= @Hateoas\Exclusion(groups={"sub_details"})
+ *     exclusion= @Hateoas\Exclusion(groups={"sub_details"}, maxDepth=1)
  * )
  *
  * @Hateoas\Relation(
@@ -47,8 +48,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *           parameters={"id" = "expr(object.getId())"},
  *          absolute= true
  *     ),
- *
- *     exclusion= @Hateoas\Exclusion(groups={"sub_details"})
+ *     exclusion= @Hateoas\Exclusion(groups={}, maxDepth=1)
  * )
  */
 class SubUser
@@ -82,7 +82,7 @@ class SubUser
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, inversedBy="subUsers")
-     * @Serializer\Groups("sub_list", "sub_details")
+     * @Serializer\Groups("sub_list", "Default")
      * @Serializer\Exclude
      * @Type("ArrayCollection<App\Entity\User>")
      */
