@@ -5,6 +5,7 @@ namespace App\Controller;
 
 
 use App\Entity\User;
+use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +22,28 @@ class SecurityController extends AbstractController
 //TODO: when subUser gives info check if part of subUser table -> getUser and connect with him
     /**
      * Login to gain access to API
+     * @OA\Tag(name="Login")
+     *
+     * @OA\Response(response="200", description="Success")
+     * @OA\Response(response="401", description="Not authorized")
+     *
+     * @OA\RequestBody(
+     *     description="Login credentials",
+     *     required=true,
+     *     @OA\MediaType(
+     *          mediaType="application/json",
+     *          @OA\Schema(
+     *              @OA\Property(
+     *                  property="name",
+     *                  type="string"
+     *              ),
+     *              @OA\Property(
+     *                  property="password",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
      *
      * @param Request $request
      * @return JsonResponse

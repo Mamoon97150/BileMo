@@ -13,6 +13,7 @@ use Hateoas\HateoasBuilder;
 use Hateoas\UrlGenerator\SymfonyUrlGenerator;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
+use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,6 +69,25 @@ class SubUserController extends AbstractController
 
     /**
      * Lists all the users able to connect to api
+     *
+     * @OA\Tag(name="User")
+     *
+     * @OA\Parameter(
+     *      name="page",
+     *      in="query",
+     *      description="Current page",
+     *      required=false,
+     * )
+     * @OA\Parameter(
+     *     name="limit",
+     *     in="query",
+     *     description="Results per page",
+     *     required=false,
+     * )
+     *
+     * @OA\Response(response="200", description="Success")
+     * @OA\Response(response="401", description="Not authorized")
+     *
      * @param UserRepository $userRepository
      * @param Request $request
      * @param PaginationService $pagination
@@ -96,6 +116,13 @@ class SubUserController extends AbstractController
 
     /**
      * Show the details of a User and all his sub users
+     * @OA\Tag(name="User")
+     *
+     * @OA\Response(response="200", description="Success")
+     * @OA\Response(response="401", description="Not authorized")
+     * @OA\Response(response="404", description="Not found")
+     *
+     *
      * @param User $user
      * @return Response
      */
@@ -121,7 +148,13 @@ class SubUserController extends AbstractController
     }
 
     /**
-     * Show the details of a sub user and the User he is linked to
+     *Show the details of a Sub-User
+     * @OA\Tag(name="Sub-User")
+     *
+     * @OA\Response(response="200", description="Success")
+     * @OA\Response(response="401", description="Not authorized")
+     * @OA\Response(response="404", description="Not found")
+     *
      * @param SubUser $subUser
      * @return Response
      */
@@ -147,6 +180,30 @@ class SubUserController extends AbstractController
 
     /**
      * Create a new SubUser
+     * @OA\Tag(name="Sub-User")
+     *
+     * @OA\RequestBody(
+     *     description="Login credentials",
+     *     required=true,
+     *     @OA\MediaType(
+     *          mediaType="application/json",
+     *          @OA\Schema(
+     *              @OA\Property(
+     *                  property="username",
+     *                  type="string"
+     *              ),
+     *              @OA\Property(
+     *                  property="email",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+     *
+     * @OA\Response(response="201", description="Success")
+     * @OA\Response(response="401", description="Not authorized")
+     * @OA\Response(response="400", description="Not right format")
+     *
      * @param Request $request
      * @param EntityManagerInterface $manager
      * @param UrlGeneratorInterface $urlGenerator
@@ -203,6 +260,12 @@ class SubUserController extends AbstractController
 
     /**
      * Update an existing SubUser
+     * @OA\Tag(name="Sub-User")
+     *
+     * @OA\Response(response="200", description="Success")
+     * @OA\Response(response="400", description="Bad request")
+     * @OA\Response(response="401", description="Not authorized")
+     * @OA\Response(response="404", description="Not found")
      *
      * @param SubUser $subUser
      * @param Request $request
@@ -232,7 +295,7 @@ class SubUserController extends AbstractController
 
             $manager->flush();
 
-            return $this->json($subUser, 201, [], ['groups' => 'post:read']);
+            return $this->json($subUser, JsonResponse::HTTP_OK, [], ['groups' => 'post:read']);
         }catch ( Exception $exception){
             return $this->json([
                 'status' => $exception->getCode(),
@@ -244,6 +307,11 @@ class SubUserController extends AbstractController
 
     /**
      * Delete a SubUser
+     * @OA\Tag(name="Sub-User")
+     *
+     * @OA\Response(response="204", description="Success")
+     * @OA\Response(response="401", description="Not authorized")
+     * @OA\Response(response="404", description="Not found")
      *
      * @param SubUser $subUser
      * @param EntityManagerInterface $manager
