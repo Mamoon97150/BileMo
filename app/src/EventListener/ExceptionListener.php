@@ -30,7 +30,13 @@ class ExceptionListener extends AbstractController
         // HttpExceptionInterface is a special type of exception that
         // holds status code and header details
         if ($exception instanceof HttpExceptionInterface) {
-
+            if ($exception->getCode() === 0){
+                $message = [
+                    'status' => $exception->getStatusCode(),
+                    'message' => 'This resource does not exist. Try another one.'
+                ];
+                $response = $this->json($message, $exception->getStatusCode(), [$exception->getHeaders()]);
+            }
             $response = $this->json($message, $exception->getStatusCode(), [$exception->getHeaders()]);
 
         } else {

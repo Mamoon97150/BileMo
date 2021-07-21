@@ -4,8 +4,6 @@ namespace App\Controller;
 
 use App\Entity\SubUser;
 use App\Entity\User;
-use App\Repository\UserRepository;
-use App\Service\PaginationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Hateoas\Hateoas;
@@ -13,6 +11,7 @@ use Hateoas\HateoasBuilder;
 use Hateoas\UrlGenerator\SymfonyUrlGenerator;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,7 +28,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * Create CRUD for SubUsers and show for User
  * @package App\Controller
  */
-#[Route('/user', name: 'api')]
+#[Route('/user/sub', name: 'api_sub')]
 class SubUserController extends AbstractController
 {
     //Todo: affiner les exceptions?
@@ -37,10 +36,12 @@ class SubUserController extends AbstractController
      * @var Hateoas|SerializerInterface
      */
     private SerializerInterface|Hateoas $serializer;
+
     /**
      * @var UrlGeneratorInterface
      */
     private UrlGeneratorInterface $urlGenerator;
+
     /**
      * @var SymfonySerializerInterface
      */
@@ -68,97 +69,20 @@ class SubUserController extends AbstractController
     }
 
     /**
-     * Lists all the users able to connect to api
-     *
-     * @OA\Tag(name="User")
-     *
-     * @OA\Parameter(
-     *      name="page",
-     *      in="query",
-     *      description="Current page",
-     *      required=false,
-     * )
-     * @OA\Parameter(
-     *     name="limit",
-     *     in="query",
-     *     description="Results per page",
-     *     required=false,
-     * )
-     *
-     * @OA\Response(response="200", description="Success")
-     * @OA\Response(response="401", description="Not authorized")
-     *
-     * @param UserRepository $userRepository
-     * @param Request $request
-     * @param PaginationService $pagination
-     * @return Response
-     */
-    #[Route('/', name: '_user_index', methods:['GET'])]
-    public function index(UserRepository $userRepository, Request $request, PaginationService $pagination): Response
-    {
-        try {
-            $this->denyAccessUnlessGranted('ROLE_SUPER_ADMIN');
-            $subs = $pagination->getPaginatedUser($request, $userRepository);
-
-            return new JsonResponse(
-                $this->serializer->serialize($subs, 'json', SerializationContext::create()->setGroups(["sub_list", "Default"])),
-                JsonResponse::HTTP_OK,
-                [],
-                true
-            );
-        }catch (Exception $exception) {
-            return $this->json([
-                'status' => $exception->getCode(),
-                'message' => $exception->getMessage()
-            ], $exception->getCode());
-        }
-    }
-
-    /**
-     * Show the details of a User and all his sub users
-     * @OA\Tag(name="User")
-     *
-     * @OA\Response(response="200", description="Success")
-     * @OA\Response(response="401", description="Not authorized")
-     * @OA\Response(response="404", description="Not found")
-     *
-     *
-     * @param User $user
-     * @return Response
-     */
-    #[Route('/{id}', name: '_user_item', methods:['GET'])]
-    public function collect(User $user): Response
-    {
-        try {
-            $this->denyAccessUnlessGranted('USER_OWN', $user);
-            return new JsonResponse(
-                $this->serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array("sub_list", "sub_details", "Default"))),
-                JsonResponse::HTTP_OK,
-                [],
-                true
-            );
-
-        }catch (Exception $exception){
-            return $this->json([
-                'status' => $exception->getCode(),
-                'message' => $exception->getMessage()
-            ], 400);
-        }
-
-    }
-
-    /**
      *Show the details of a Sub-User
      * @OA\Tag(name="Sub-User")
      *
      * @OA\Response(response="200", description="Success")
      * @OA\Response(response="401", description="Not authorized")
+     * @OA\Response(response="403", description="Access denied")
      * @OA\Response(response="404", description="Not found")
+     *
+     * @Security(name="Bearer")
      *
      * @param SubUser $subUser
      * @return Response
      */
-    #[Route('/sub/{id}', name: '_sub_item', methods:['GET'])]
+    #[Route('/{id}', name: '_item', methods:['GET'])]
     public function item(SubUser $subUser): Response
     {
         try {
@@ -202,7 +126,10 @@ class SubUserController extends AbstractController
      *
      * @OA\Response(response="201", description="Success")
      * @OA\Response(response="401", description="Not authorized")
+     * @OA\Response(response="403", description="Access denied")
      * @OA\Response(response="400", description="Not right format")
+     *
+     * @Security(name="Bearer")
      *
      * @param Request $request
      * @param EntityManagerInterface $manager
@@ -210,7 +137,7 @@ class SubUserController extends AbstractController
      * @param ValidatorInterface $validator
      * @return Response
      */
-    #[Route('/sub/create', name: '_sub_create', methods:['POST'])]
+    #[Route('/create', name: '_create', methods:['POST'])]
     public function create(
         Request $request,
         EntityManagerInterface $manager,
@@ -256,8 +183,6 @@ class SubUserController extends AbstractController
         }
     }
 
-    //TODO: ask if ok to use both serializer
-
     /**
      * Update an existing SubUser
      * @OA\Tag(name="Sub-User")
@@ -265,7 +190,10 @@ class SubUserController extends AbstractController
      * @OA\Response(response="200", description="Success")
      * @OA\Response(response="400", description="Bad request")
      * @OA\Response(response="401", description="Not authorized")
+     * @OA\Response(response="403", description="Access denied")
      * @OA\Response(response="404", description="Not found")
+     *
+     * @Security(name="Bearer")
      *
      * @param SubUser $subUser
      * @param Request $request
@@ -273,7 +201,7 @@ class SubUserController extends AbstractController
      * @param ValidatorInterface $validator
      * @return JsonResponse
      */
-    #[Route('/sub/{id}', name: '_sub_update', methods:['PUT'])]
+    #[Route('/{id}', name: '_update', methods:['PUT'])]
     public function update(SubUser $subUser,Request $request, EntityManagerInterface $manager, ValidatorInterface $validator): JsonResponse
     {
         try {
@@ -311,13 +239,17 @@ class SubUserController extends AbstractController
      *
      * @OA\Response(response="204", description="Success")
      * @OA\Response(response="401", description="Not authorized")
+     * @OA\Response(response="403", description="Access denied")
      * @OA\Response(response="404", description="Not found")
+     *
+     *
+     * @Security(name="Bearer")
      *
      * @param SubUser $subUser
      * @param EntityManagerInterface $manager
      * @return JsonResponse
      */
-    #[Route('/sub/{id}', name: "_sub_delete", methods: ['DELETE'])]
+    #[Route('/{id}', name: "_delete", methods: ['DELETE'])]
     public function delete( SubUser $subUser, EntityManagerInterface $manager): JsonResponse
     {
         try {

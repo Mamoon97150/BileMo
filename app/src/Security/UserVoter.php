@@ -15,8 +15,6 @@ class UserVoter extends Voter
     private Security $security;
     const OWN = 'USER_OWN';
 
-    //TODO check if i'm subUser to show or update my details
-
     public function __construct(Security $security)
     {
         $this->security = $security;
@@ -75,7 +73,7 @@ class UserVoter extends Voter
     {
         if ($userDetails instanceof SubUser)
         {
-            return $userDetails->getUsers()->contains($user);
+            return $userDetails->getUser() === $user;
         }
         return $user === $userDetails;
     }
