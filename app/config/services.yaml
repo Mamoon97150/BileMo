@@ -36,3 +36,7 @@ services:
         public: true
         arguments:
             - '@jms_serializer.expression_evaluator'
+
+    App\EventListener\ExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }

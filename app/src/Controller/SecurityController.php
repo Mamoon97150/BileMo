@@ -62,10 +62,24 @@ class SecurityController extends AbstractController
 
 
     /**
-     * @param User $user
+     * TODO: Does not work ask if possible ?
      */
-    public function getToken(User $user)
+    #[Route('sub/login', name: "_sub_login", methods: ['POST'])]
+    public function getAccess(Request $request, SubUserRepository $repository, UserRepository $userRepository)
     {
+        dd($request);
+        /** @var SubUser $subUser */
+        $subUserData= $this->serializer->deserialize($request->getContent(), SubUser::class, 'json');
+        $subUser =  $repository->findOneBy(["username" => $subUserData->getUsername()]);
+
+        $user = $userRepository->find($subUser->getUser()->getId());
+        $user->setRoles(['ROLE_USER']);
+
+        $data = $this->json([
+            "username" => $user->getUserIdentifier(),
+            "password" => $user->getPassword(),
+            "roles" => $user->getRoles()
+        ]);
 
     }
 
