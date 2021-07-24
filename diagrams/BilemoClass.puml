@@ -1,0 +1,46 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+interface UserInterface
+interface PasswordAuthenticatedUserInterface
+class User {
+ - int id
+ - string name
+ - string password
+ - array roles
+ - SubUser[] subUsers
+ + getSubUsers()
+ + addSubUser(SubUser)
+ + removeSubUser(SubUser)
+
+}
+
+class SubUser {
+ - int id
+ - User user
+ - string email
+ - string username
+
+}
+
+class Products {
+   - int id
+   - string name
+   - string brand
+   - int quantity
+   - User[] soldBy
+   + getSoldBy()
+   + addToClient(Products)
+   + removeFromClient(Products)
+}
+
+
+User <|-- UserInterface
+User <|-- PasswordAuthenticatedUserInterface
+
+SubUser "*" -- "1" User : belongs >
+Products "*" -- "*" User : soldBy >
+
+
+
+@enduml
