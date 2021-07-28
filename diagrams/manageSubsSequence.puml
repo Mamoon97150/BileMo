@@ -1,0 +1,55 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor User
+participant API
+participant subUser
+participant Products
+
+User -> API: login()
+API --> User: Authentication\n success
+
+alt Product
+    User -> API: index()
+    API -> Products: getPaginatedProducts()
+    Products --> API: Products list
+    API --> User: Json list
+
+    User -> API: item(product)
+    API -> Products: find(product)
+    Products --> API: Product's details
+    API --> User: Json details
+
+autonumber 3
+else SubUser of User
+    User -> API: collect()
+    API -> API: checkAccess()
+    API --> User: Access granted
+
+    opt read
+        User -> API: item(subUser)
+        API ->subUser: find(subUser)
+        subUser--> API: subUser
+        API --> User: Json SubUser details
+    end
+    opt update
+        User -> API: update(subUser)
+        API ->subUser: editSubUser(subUser)
+        subUser--> API: edited subUser
+    end
+    opt create
+        User -> API: create()
+        API ->subUser: addSubUser()
+        subUser--> API: subUser
+        API --> User: Json SubUser details
+    end
+    opt delete
+        User -> API: delete(subUser)
+        API ->subUser: eraseSubUser(subUser)
+        subUser--> API: subUser deleted
+
+    end
+end
+@enduml

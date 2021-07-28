@@ -1,0 +1,37 @@
+@startuml
+left to right direction
+
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+actor User
+actor BileMo
+rectangle BileMoAPI {
+    usecase "Login" as login
+    usecase "See list of products" as pl
+    usecase "See product details" as pd
+    usecase "See User list" as ul
+    usecase "See User details" as ud
+    usecase "See subUser list" as sl
+    usecase "See sub details" as sd
+    usecase "Create new sub" as sc
+    usecase "Edit existing sub" as su
+    usecase  "Delete sub" as sd
+}
+
+login -- pl
+login -- pd
+login -- ul
+login -- ud
+login -- sl
+login -- sc
+login -- su
+login -- sd
+
+BileMo --|> User
+
+User -- (login)
+
+SubUser --- (pd)
+
+@enduml
