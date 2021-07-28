@@ -7,7 +7,6 @@ namespace App\Controller;
 use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -43,11 +42,10 @@ class SecurityController extends AbstractController
      *      )
      * )
      *
-     * @param Request $request
      * @return JsonResponse
      */
     #[Route('login', name: "_user_login", methods: ['POST'])]
-    public function login(Request $request): JsonResponse
+    public function login(): JsonResponse
     {
         $user = $this->getUser();
 

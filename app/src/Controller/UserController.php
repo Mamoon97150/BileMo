@@ -31,22 +31,16 @@ class UserController extends AbstractController
     private Hateoas|SerializerInterface $serializer;
 
     /**
-     * @var UrlGeneratorInterface
-     */
-    private UrlGeneratorInterface $urlGenerator;
-
-    /**
      * UserController constructor.
      * @param UrlGeneratorInterface $urlGenerator
      */
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
-        $this->urlGenerator = $urlGenerator;
         $this->serializer = HateoasBuilder::create()
             ->setCacheDir('cache')
             ->setUrlGenerator(
                 null, // By default all links uses the generator configured with the null name
-                new SymfonyUrlGenerator($this->urlGenerator)
+                new SymfonyUrlGenerator($urlGenerator)
             )
             ->build();
     }

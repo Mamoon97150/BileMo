@@ -31,7 +31,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Route('/user/sub', name: 'api_sub')]
 class SubUserController extends AbstractController
 {
-    //Todo: affiner les exceptions?
     /**
      * @var Hateoas|SerializerInterface
      */
@@ -133,7 +132,6 @@ class SubUserController extends AbstractController
      *
      * @param Request $request
      * @param EntityManagerInterface $manager
-     * @param UrlGeneratorInterface $urlGenerator
      * @param ValidatorInterface $validator
      * @return Response
      */
@@ -141,7 +139,6 @@ class SubUserController extends AbstractController
     public function create(
         Request $request,
         EntityManagerInterface $manager,
-        UrlGeneratorInterface $urlGenerator,
         ValidatorInterface $validator
     ): Response
     {
@@ -171,7 +168,7 @@ class SubUserController extends AbstractController
             return new JsonResponse(
                 $this->serializer->serialize($subs, 'json', SerializationContext::create()->setGroups("sub_list")),
                 JsonResponse::HTTP_CREATED,
-                ["location" => $urlGenerator->generate("api_sub_create", ["id" => $subs->getId()])],
+                ["location" => $this->urlGenerator->generate("api_sub_create", ["id" => $subs->getId()])],
                 true
             );
 

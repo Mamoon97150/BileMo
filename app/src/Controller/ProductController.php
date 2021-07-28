@@ -30,10 +30,6 @@ class ProductController extends AbstractController
      * @var Hateoas|SerializerInterface
      */
     private SerializerInterface|Hateoas $serializer;
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private UrlGeneratorInterface $urlGenerator;
 
     /**
      * ProductController constructor.
@@ -41,13 +37,11 @@ class ProductController extends AbstractController
      */
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
-        $this->urlGenerator = $urlGenerator;
-
         $this->serializer = HateoasBuilder::create()
             ->setDefaultJsonSerializer()
             ->setUrlGenerator(
                 null, // By default all links uses the generator configured with the null name
-                new SymfonyUrlGenerator($this->urlGenerator)
+                new SymfonyUrlGenerator($urlGenerator)
             )
             ->build();
     }
