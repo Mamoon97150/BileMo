@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\SubUser;
-use App\Entity\User;
+use App\Service\SubUserManagementService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Hateoas\Hateoas;
@@ -13,14 +13,13 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use Symfony\Component\Serializer\SerializerInterface as SymfonySerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -42,21 +41,14 @@ class SubUserController extends AbstractController
     private UrlGeneratorInterface $urlGenerator;
 
     /**
-     * @var SymfonySerializerInterface
-     */
-    private SymfonySerializerInterface $symfonySerializer;
-
-    /**
      * ProductController constructor.
      * Creates hateoas serializer (cache, urlGenerator)
      *
      * @param UrlGeneratorInterface $urlGenerator
-     * @param SymfonySerializerInterface $symfonySerializer
      */
-    public function __construct(UrlGeneratorInterface $urlGenerator, SymfonySerializerInterface $symfonySerializer)
+    public function __construct(UrlGeneratorInterface $urlGenerator)
     {
         $this->urlGenerator = $urlGenerator;
-        $this->symfonySerializer = $symfonySerializer;
 
         $this->serializer = HateoasBuilder::create()
             ->setCacheDir('cache')
@@ -130,41 +122,24 @@ class SubUserController extends AbstractController
      *
      * @Security(name="Bearer")
      *
+     * @IsGranted("ROLE_USER")
+     *
      * @param Request $request
      * @param EntityManagerInterface $manager
      * @param ValidatorInterface $validator
+     * @param SubUserManagementService $subUserManagement
      * @return Response
      */
     #[Route('/create', name: '_create', methods:['POST'])]
     public function create(
         Request $request,
         EntityManagerInterface $manager,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        SubUserManagementService $subUserManagement
     ): Response
     {
         try {
-
-            /** @var SubUser $subs */
-            $subs = $this->symfonySerializer->deserialize(
-                $request->getContent(),
-                SubUser::class,
-                'json'
-            );
-
-            /** @var User $user */
-            $user = $this->getUser();
-            $subs->setUser($user);
-
-            $this->denyAccessUnlessGranted('USER_OWN', $user);
-
-            $errors = $validator->validate($subs);
-            if (count($errors) > 0){
-                return $this->json($errors, 400);
-            }
-
-            $manager->persist($subs);
-            $manager->flush();
-
+            $subs = $subUserManagement->addSubUser($request, $this->getUser(), $validator, $manager);
             return new JsonResponse(
                 $this->serializer->serialize($subs, 'json', SerializationContext::create()->setGroups("sub_list")),
                 JsonResponse::HTTP_CREATED,
@@ -196,29 +171,22 @@ class SubUserController extends AbstractController
      * @param Request $request
      * @param EntityManagerInterface $manager
      * @param ValidatorInterface $validator
+     * @param SubUserManagementService $subUserManagement
      * @return JsonResponse
      */
     #[Route('/{id}', name: '_update', methods:['PUT'])]
-    public function update(SubUser $subUser,Request $request, EntityManagerInterface $manager, ValidatorInterface $validator): JsonResponse
+    public function update(
+        SubUser $subUser,
+        Request $request,
+        EntityManagerInterface $manager,
+        ValidatorInterface $validator,
+        SubUserManagementService $subUserManagement
+    ): JsonResponse
     {
         try {
-
             $this->denyAccessUnlessGranted('USER_OWN', $subUser);
 
-            $this->symfonySerializer->deserialize(
-                $request->getContent(),
-                SubUser::class,
-                'json',
-                [AbstractNormalizer::OBJECT_TO_POPULATE => $subUser]
-            );
-
-            $errors = $validator->validate($subUser);
-
-            if (count($errors) > 0){
-                return $this->json($errors, 400);
-            }
-
-            $manager->flush();
+            $subUser = $subUserManagement->editSubUser($request, $subUser, $validator, $manager);
 
             return $this->json($subUser, JsonResponse::HTTP_OK, [], ['groups' => 'post:read']);
         }catch ( Exception $exception){
@@ -244,14 +212,14 @@ class SubUserController extends AbstractController
      *
      * @param SubUser $subUser
      * @param EntityManagerInterface $manager
+     * @param SubUserManagementService $subUserManagement
      * @return JsonResponse
      */
     #[Route('/{id}', name: "_delete", methods: ['DELETE'])]
-    public function delete( SubUser $subUser, EntityManagerInterface $manager): JsonResponse
+    public function delete( SubUser $subUser, EntityManagerInterface $manager, SubUserManagementService $subUserManagement): JsonResponse
     {
         try {
-            $manager->remove($subUser);
-            $manager->flush();
+            $subUserManagement->eraseSubUser($subUser, $manager);
 
             return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
         }catch (Exception $exception){

@@ -14,7 +14,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass=SubUserRepository::class)
  * @Serializer\XmlRoot("subuser")
  *
- * Hateoas\RelationProvider("expr(service(user.rel_provider).getExtraRelations())")
  * @Hateoas\Relation(
  *     "self",
  *      href =  @Hateoas\Route(

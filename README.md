@@ -1,6 +1,14 @@
 # BileMo
 Projet 7 : API Bilemo
 
+## Documentation de l'API
+
+[Lien vers la documentation](http://localhost:8000/api/doc)
+
+(Attention à changer le port localhost si besoin !)
+
+***
+
 ## Environnement de développement
 
 ### Pré-requis 
@@ -54,7 +62,7 @@ Dans le terminal exécutez la commande suivante :
     php bin/console lexik:jwt:generate-keypair
 ```
 
-Rendez vous sur la page **/api/doc** et exécutez la méthode login avec les paramètres suivants: 
+Rendez vous sur la page de documentation et exécutez la méthode login avec les paramètres suivants: 
 
 Administrateur :
 - name : bilemo 

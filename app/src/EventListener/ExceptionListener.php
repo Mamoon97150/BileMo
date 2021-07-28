@@ -4,13 +4,10 @@
 namespace App\EventListener;
 
 
-use Exception;
-use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ExceptionListener extends AbstractController
 {
@@ -33,9 +30,8 @@ class ExceptionListener extends AbstractController
             if ($exception->getCode() === 0){
                 $message = [
                     'status' => $exception->getStatusCode(),
-                    'message' => 'This resource does not exist. Try another one.'
+                    'message' => $exception->getMessage()
                 ];
-                $response = $this->json($message, $exception->getStatusCode(), [$exception->getHeaders()]);
             }
             $response = $this->json($message, $exception->getStatusCode(), [$exception->getHeaders()]);
 
