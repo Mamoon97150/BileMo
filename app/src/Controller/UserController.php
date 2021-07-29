@@ -76,7 +76,7 @@ class UserController extends AbstractController
      * @return Response
      */
     #[Route('/', name: '_index', methods:['GET'])]
-    public function index(UserRepository $userRepository, Request $request, PaginationService $pagination): Response
+    public function getUserList(UserRepository $userRepository, Request $request, PaginationService $pagination): Response
     {
         try {
             $this->denyAccessUnlessGranted('ROLE_SUPER_ADMIN');
@@ -111,7 +111,7 @@ class UserController extends AbstractController
      * @return Response
      */
     #[Route('/{id}', name: '_item', methods:['GET'])]
-    public function collect(User $user): Response
+    public function getUserDetails(User $user): Response
     {
         try {
             $this->denyAccessUnlessGranted('USER_OWN', $user);

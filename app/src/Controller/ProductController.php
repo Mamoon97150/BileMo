@@ -73,7 +73,7 @@ class ProductController extends AbstractController
      * @return Response
      */
     #[Route('/', name: '_collection', methods:['GET'])]
-    public function index(Request $request, ProductsRepository $productsRepository, PaginationService $pagination): Response
+    public function getProductList(Request $request, ProductsRepository $productsRepository, PaginationService $pagination): Response
     {
         $products = $pagination->getPaginatedProducts($request, $productsRepository);
         return new JsonResponse(
@@ -106,7 +106,7 @@ class ProductController extends AbstractController
      * @return Response
      */
     #[Route('/{id}', name: '_item', methods:['GET'])]
-    public function item(Products $product): Response
+    public function getProduct(Products $product): Response
     {
         return new JsonResponse(
             $this->serializer->serialize($product, 'json', SerializationContext::create()->setGroups(array('list', 'details'))),

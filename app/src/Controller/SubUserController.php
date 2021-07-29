@@ -74,7 +74,7 @@ class SubUserController extends AbstractController
      * @return Response
      */
     #[Route('/{id}', name: '_item', methods:['GET'])]
-    public function item(SubUser $subUser): Response
+    public function getSubUser(SubUser $subUser): Response
     {
         try {
             $this->denyAccessUnlessGranted('USER_OWN', $subUser);
@@ -131,7 +131,7 @@ class SubUserController extends AbstractController
      * @return Response
      */
     #[Route('/create', name: '_create', methods:['POST'])]
-    public function create(
+    public function createSubUser(
         Request $request,
         EntityManagerInterface $manager,
         ValidatorInterface $validator,
@@ -175,7 +175,7 @@ class SubUserController extends AbstractController
      * @return JsonResponse
      */
     #[Route('/{id}', name: '_update', methods:['PUT'])]
-    public function update(
+    public function updateSubUser(
         SubUser $subUser,
         Request $request,
         EntityManagerInterface $manager,
@@ -216,7 +216,7 @@ class SubUserController extends AbstractController
      * @return JsonResponse
      */
     #[Route('/{id}', name: "_delete", methods: ['DELETE'])]
-    public function delete( SubUser $subUser, EntityManagerInterface $manager, SubUserManagementService $subUserManagement): JsonResponse
+    public function deleteSubUser( SubUser $subUser, EntityManagerInterface $manager, SubUserManagementService $subUserManagement): JsonResponse
     {
         try {
             $subUserManagement->eraseSubUser($subUser, $manager);
