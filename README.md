@@ -15,7 +15,8 @@ Projet 7 : API Bilemo
 
 ### Pré-requis 
 -   PHP 8
--   Symfony CLI    
+-   Mysql 8.0
+-   Symfony 5.3 CLI    
 -   Docker
 -   Docker-compose
 
