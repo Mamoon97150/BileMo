@@ -31,7 +31,7 @@ class SubUserManagementService
     }
 
 
-    public function addSubUser(Request $request, $user, ValidatorInterface $validator, EntityManagerInterface $manager)
+    public function addSubUser(Request $request, User $user, ValidatorInterface $validator, EntityManagerInterface $manager)
     {
         /** @var SubUser $subs */
         $subs = $this->symfonySerializer->deserialize(
@@ -40,13 +40,14 @@ class SubUserManagementService
             'json'
         );
 
-        /** @var User $user */
 
         $subs->setUser($user);
 
+
         $errors = $validator->validate($subs);
+
         if (count($errors) > 0){
-            return new JsonResponse($errors, Response::HTTP_BAD_REQUEST);
+            return $errors;
         }
 
         $manager->persist($subs);

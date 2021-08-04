@@ -13,6 +13,7 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
+use phpDocumentor\Reflection\Types\This;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -139,13 +140,17 @@ class SubUserController extends AbstractController
     ): Response
     {
         try {
+
             $subs = $subUserManagement->addSubUser($request, $this->getUser(), $validator, $manager);
-            return new JsonResponse(
-                $this->serializer->serialize($subs, 'json', SerializationContext::create()->setGroups("sub_list")),
-                JsonResponse::HTTP_CREATED,
-                ["location" => $this->urlGenerator->generate("api_sub_create", ["id" => $subs->getId()])],
-                true
-            );
+            if ($subs instanceof SubUser){
+                return new JsonResponse(
+                    $this->serializer->serialize($subs, 'json', SerializationContext::create()->setGroups("sub_list")),
+                    Response::HTTP_CREATED,
+                    ["location" => $this->urlGenerator->generate("api_sub_create", ["id" => $subs->getId()])],
+                    true
+                );
+            }
+            return $this->json($subs, Response::HTTP_BAD_REQUEST);
 
         }catch (Exception $exception){
             return $this->json([

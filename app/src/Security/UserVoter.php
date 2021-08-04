@@ -6,6 +6,7 @@ namespace App\Security;
 
 use App\Entity\SubUser;
 use App\Entity\User;
+use LogicException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
@@ -66,7 +67,7 @@ class UserVoter extends Voter
                 return $this->canEdit($userDetails, $user);*/
         }
 
-        throw new \LogicException('This code should not be reached!');
+        throw new LogicException('This code should not be reached!');
     }
 
     private function canView(User|SubUser $userDetails, User $user): bool
