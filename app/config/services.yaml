@@ -23,3 +23,12 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    user.rel_provider:
+        class: App\Service\SubUserRelProvider
+        public: true
+        arguments:
+            - '@jms_serializer.expression_evaluator'
+
+    App\EventListener\ExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }

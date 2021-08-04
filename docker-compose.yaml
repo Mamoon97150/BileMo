@@ -15,7 +15,6 @@ services:
             dev:
 
     php8-service:
-        user: "${UID}:${GID}"
         build:
             context: .
             dockerfile: ./php/Dockerfile
