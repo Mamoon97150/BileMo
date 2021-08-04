@@ -1,4 +1,7 @@
 # BileMo
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/118dce1d4483402182ed0a49e1d12e2d)](https://app.codacy.com/gh/Mamoon97150/BileMo?utm_source=github.com&utm_medium=referral&utm_content=Mamoon97150/BileMo&utm_campaign=Badge_Grade_Settings)
+
 Projet 7 : API Bilemo
 
 ## Documentation de l'API
